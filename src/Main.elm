@@ -15,6 +15,7 @@ type alias Entity =
     { x : Float
     , y : Float
     , direction : Direction
+    , inMotion : Bool
     }
 
 
@@ -40,7 +41,7 @@ init : Flags -> ( Model, Cmd Msg )
 init flags =
     ( { charactersPath = flags.charactersPath
       , elapsedTime = 0
-      , mario = { x = 0, y = 0, direction = Left }
+      , mario = { x = 0, y = 0, direction = Left, inMotion = False }
       , keyPressed = "Nothing pressed"
       }
     , Cmd.none
@@ -71,7 +72,19 @@ update msg model =
             ( { model | keyPressed = toString keyCode }, Cmd.none )
 
         KeyUp keyCode ->
-            ( { model | keyPressed = "Nothing pressed" }, Cmd.none )
+            let
+                oldMario =
+                    model.mario
+
+                newMario =
+                    { oldMario | inMotion = False }
+            in
+                ( { model
+                    | keyPressed = "Nothing pressed"
+                    , mario = newMario
+                  }
+                , Cmd.none
+                )
 
 
 
@@ -105,9 +118,17 @@ moveMario dt keyPressed mario =
             "39"
     in
         if keyPressed == leftArrow then
-            { mario | x = mario.x - dt / 10, direction = Left }
+            { mario
+                | x = mario.x - dt / 10
+                , inMotion = True
+                , direction = Left
+            }
         else if keyPressed == rightArrow then
-            { mario | x = mario.x + dt / 10, direction = Right }
+            { mario
+                | x = mario.x + dt / 10
+                , inMotion = True
+                , direction = Right
+            }
         else
             mario
 
