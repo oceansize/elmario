@@ -6,6 +6,7 @@ import Html exposing (Html)
 import AnimationFrame
 import Keyboard exposing (KeyCode)
 import Time exposing (Time)
+import String exposing (..)
 
 
 ---- MODEL ----
@@ -133,6 +134,46 @@ moveMario dt keyPressed mario =
             mario
 
 
+toPx : String -> String
+toPx string =
+    string ++ "px"
+
+
+spriteWindow spriteXcoord spriteYcoord spriteWidth spriteHeight =
+    let
+        viewBoxParams =
+            spriteXcoord :: spriteYcoord :: spriteWidth :: spriteHeight :: []
+    in
+        String.join " " viewBoxParams
+
+
+drawSprite entity spritesPath =
+    let
+        spriteHeight =
+            "16"
+
+        spriteWidth =
+            "16"
+    in
+        svg
+            [ x (toString entity.x)
+            , y (toString entity.y)
+            , width (toPx spriteWidth)
+            , height (toPx spriteHeight)
+            , viewBox "321 44 16 16"
+            , version "1.1"
+            ]
+            [ image
+                [ x "0px"
+                , y "0px"
+                , width "513px"
+                , height "401px"
+                , xlinkHref spritesPath
+                ]
+                []
+            ]
+
+
 drawMario : Entity -> String -> Svg Msg
 drawMario mario spritesPath =
     let
@@ -156,7 +197,11 @@ drawMario mario spritesPath =
                 Right ->
                     marioRightSprite
     in
+<<<<<<< HEAD
         svg [ x (toString mario.x), y (toString mario.y), width "16px", height "16px", viewBox spritePosition, version "1.1" ]
+=======
+        svg [ x (toString entity.x), y (toString entity.y), width "16px", height "16px", viewBox "321 44 16 16", version "1.1" ]
+>>>>>>> WIP: making nice with sprites
             [ image [ x "0px", y "0px", width "513px", height "401px", xlinkHref spritesPath ] []
             ]
 
