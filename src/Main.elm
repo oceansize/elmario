@@ -187,7 +187,7 @@ drawMario mario spritesPath =
             "222 44 16 16"
 
         marioRightSprite =
-            "276 44 16 16"
+            "275 44 16 16"
 
         spritePosition =
             case mario.direction of
