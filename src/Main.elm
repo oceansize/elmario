@@ -17,6 +17,7 @@ type alias Entity =
     , y : Float
     , direction : Direction
     , inMotion : Bool
+    , currentFrame : String
     }
 
 
@@ -42,7 +43,7 @@ init : Flags -> ( Model, Cmd Msg )
 init flags =
     ( { charactersPath = flags.charactersPath
       , elapsedTime = 0
-      , mario = { x = 0, y = 0, direction = Left, inMotion = False }
+      , mario = { x = 0, y = 0, direction = Left, inMotion = False, currentFrame = "275 44 16 16" }
       , keyPressed = "Nothing pressed"
       }
     , Cmd.none
@@ -95,7 +96,7 @@ update msg model =
 view : Model -> Html Msg
 view model =
     let
-        frame =
+        ticker =
             (round model.elapsedTime) % 10
     in
         Html.div []
@@ -117,6 +118,12 @@ moveMario dt keyPressed mario =
 
         rightArrow =
             "39"
+
+        marioRightSpriteFrameOne =
+            "275 44 16 16"
+
+        marioRightSpriteFrameTwo =
+            "290 44 16 16"
     in
         if keyPressed == leftArrow then
             { mario
@@ -124,14 +131,86 @@ moveMario dt keyPressed mario =
                 , inMotion = True
                 , direction = Left
             }
-        else if keyPressed == rightArrow then
+        else if keyPressed == rightArrow && mario.currentFrame == marioRightSpriteFrameOne then
             { mario
                 | x = mario.x + dt / 10
                 , inMotion = True
                 , direction = Right
+                , currentFrame = marioRightSpriteFrameTwo
+            }
+        else if keyPressed == rightArrow && mario.currentFrame == marioRightSpriteFrameTwo then
+            { mario
+                | x = mario.x + dt / 10
+                , inMotion = True
+                , direction = Right
+                , currentFrame = marioRightSpriteFrameOne
             }
         else
             mario
+
+
+animationTicker : Float -> Int
+animationTicker currentPosition =
+    Debug.log "frame" ((round (currentPosition / 50)) % 3)
+
+
+marioSpriteRight mario =
+    let
+        ticker =
+            animationTicker mario.x
+
+        marioRightSpriteFrameOne =
+            "275 44 16 16"
+
+        marioRightSpriteFrameTwo =
+            "290 44 16 16"
+
+        marioRightSpriteFrameThree =
+            "305 44 16 16"
+    in
+        if ticker == 0 then
+            { mario
+                | currentFrame = marioRightSpriteFrameOne
+            }
+        else if ticker == 1 then
+            { mario
+                | currentFrame = marioRightSpriteFrameTwo
+            }
+        else if ticker == 2 then
+            { mario
+                | currentFrame = marioRightSpriteFrameThree
+            }
+        else
+            mario
+
+
+marioSpriteLeft : Entity -> Entity
+marioSpriteLeft mario =
+    let
+        ticker =
+            animationTicker mario.x
+
+        marioRightSpriteFrameOne =
+            "275 44 16 16"
+
+        marioRightSpriteFrameTwo =
+            "290 44 16 16"
+
+        marioRightSpriteFrameThree =
+            "305 44 16 16"
+    in
+        if ticker == 1 then
+            { mario
+                | currentFrame = marioRightSpriteFrameOne
+            }
+        else if ticker == 2 then
+            { mario
+                | currentFrame = marioRightSpriteFrameTwo
+            }
+        else
+            { mario
+                | currentFrame = marioRightSpriteFrameThree
+            }
 
 
 toPx : Int -> String
@@ -186,19 +265,31 @@ drawMario mario spritesPath =
         marioLeftSprite =
             "222 44 16 16"
 
-        marioRightSprite =
-            "275 44 16 16"
-
-        spritePosition =
+        spriteDirection =
             case mario.direction of
                 Left ->
-                    marioLeftSprite
+                    marioSpriteLeft mario
 
                 Right ->
-                    marioRightSprite
+                    marioSpriteRight mario
     in
-        svg [ x (toString mario.x), y (toString mario.y), width (toPx spriteWidth), height (toPx spriteHeight), viewBox spritePosition, version "1.1" ]
-            [ image [ x "0px", y "0px", width "513px", height "401px", xlinkHref spritesPath ] []
+        svg
+            [ x (toString mario.x)
+            , y (toString mario.y)
+            , width (toPx spriteWidth)
+            , height (toPx spriteHeight)
+            , viewBox mario.currentFrame
+            , version "1.1"
+            ]
+            [ image
+                [ imageRendering "pixelated"
+                , x "0px"
+                , y "0px"
+                , width "513px"
+                , height "401px"
+                , xlinkHref spritesPath
+                ]
+                []
             ]
 
 
